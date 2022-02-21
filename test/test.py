@@ -1,30 +1,40 @@
-from calendar import month
-from prettytable import PrettyTable
+import requests
 
 
-def output(code: int) -> None:
-    match code:
-        case 0:
-            print("hello everyone")
-        case 1:
-            print(f"current month:\n{month(2022, 2)}")
-        case 2:
-            mytable = PrettyTable()
+def get_request_github(username: str):
+    res = requests.get(f"https://github.com/{username}")
+    return res
 
-            mytable.field_names = ["some_field1", "some_field2", "some_field3"]
 
-            mytable.add_row(["some_field1", 1, 2])
-            mytable.add_row(["some_field1", 1, 2])
-            mytable.add_row(["some_field1", 1, 2])
+def get_user_url(response):
+    return response.url
 
-            print(mytable)
-        case _:
-            print("invalid code, pls repeat")
-            output(input())
+
+def check_username(response) -> bool:
+    if response.status_code != 200:
+        return True
+    else:
+        return False
 
 
 def main():
-    output(int(input()))
+    print("1 - Check username is availability\n2 - Exit\n")
+    choose = int(input())
+
+    match choose:
+        case 1:
+            username = input()
+            if check_username(get_request_github(username)):
+                print("This username is free\n")
+            else:
+                print(
+                    f"This username is taken: {get_user_url(get_request_github(username))}\n")
+            main()
+        case 2:
+            pass
+        case 3:
+            print("invalid code\n")
+            main()
 
 
 if __name__ == "__main__":
